@@ -4,94 +4,584 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Daftar Akun</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
 
 <style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #0f0f0f;
-  color: white;
-}
+  :root {
+    --glass-bg: rgba(255,255,255,0.04);
+    --glass-border: rgba(255,255,255,0.10);
+    --glass-shine: rgba(255,255,255,0.07);
+    --glass-shadow: rgba(0,0,0,0.6);
+    --accent: #ffffff;
+    --accent-dim: rgba(255,255,255,0.55);
+    --surface: #0a0a0a;
+  }
 
-.container {
-  max-width: 420px;
-  margin: auto;
-  padding: 15px;
-}
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-.item {
-  display: flex;
-  align-items: center;
-  padding: 12px;
-  background: #1a1a1a;
-  border-radius: 12px;
-  margin-bottom: 10px;
-}
+  body {
+    font-family: 'DM Mono', monospace;
+    background: #060606;
+    color: white;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-.avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: #444;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 12px;
-  font-weight: bold;
-}
+  /* ── Animated background ── */
+  .bg-grid {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
 
-.info {
-  flex: 1;
-}
+  .bg-orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(90px);
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.12;
+    animation: drift 18s ease-in-out infinite alternate;
+  }
+  .bg-orb-1 { width: 500px; height: 500px; background: #fff; top: -100px; left: -150px; animation-delay: 0s; }
+  .bg-orb-2 { width: 350px; height: 350px; background: #aaa; bottom: 50px; right: -80px; animation-delay: -7s; }
+  .bg-orb-3 { width: 250px; height: 250px; background: #fff; top: 50%; left: 50%; animation-delay: -12s; }
 
-.name {
-  font-weight: bold;
-}
+  @keyframes drift {
+    0%   { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(40px, 30px) scale(1.08); }
+  }
 
-.email {
-  font-size: 12px;
-  color: #aaa;
-}
+  /* ── Layout ── */
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 460px;
+    margin: 0 auto;
+    padding: 40px 16px 60px;
+  }
+
+  /* ── Header ── */
+  .header {
+    margin-bottom: 36px;
+    animation: slideDown 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .header-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 8px;
+  }
+
+  .header-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: #fff;
+  }
+
+  .header-title span {
+    color: rgba(255,255,255,0.25);
+  }
+
+  .header-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.5);
+    backdrop-filter: blur(8px);
+  }
+
+  .badge-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.6);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  /* ── Search bar ── */
+  .search-wrap {
+    position: relative;
+    margin-bottom: 20px;
+    animation: slideDown 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    opacity: 0.35;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 12px 14px 12px 38px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    color: #fff;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    outline: none;
+    backdrop-filter: blur(12px);
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .search-input::placeholder { color: rgba(255,255,255,0.2); }
+  .search-input:focus {
+    border-color: rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.06);
+  }
+
+  /* ── Divider ── */
+  .section-label {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.2);
+    margin-bottom: 12px;
+    padding-left: 4px;
+    animation: slideDown 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+  }
+
+  /* ── Item ── */
+  .list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 13px 14px;
+    border-radius: 16px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s;
+
+    /* Liquid glass */
+    background: linear-gradient(
+      135deg,
+      rgba(255,255,255,0.07) 0%,
+      rgba(255,255,255,0.03) 50%,
+      rgba(255,255,255,0.05) 100%
+    );
+    border: 1px solid rgba(255,255,255,0.09);
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.12),
+      inset 0 -1px 0 rgba(0,0,0,0.2),
+      0 4px 24px rgba(0,0,0,0.35);
+
+    opacity: 0;
+    transform: translateY(12px);
+    animation: itemIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  /* Glass shine layer */
+  .item::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      115deg,
+      rgba(255,255,255,0.10) 0%,
+      transparent 40%,
+      transparent 60%,
+      rgba(255,255,255,0.04) 100%
+    );
+    pointer-events: none;
+    transition: opacity 0.3s;
+    opacity: 1;
+  }
+
+  /* Liquid ripple on hover */
+  .item::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,0.08) 0%, transparent 65%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .item:hover {
+    transform: translateY(-2px) scale(1.01);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.18),
+      inset 0 -1px 0 rgba(0,0,0,0.25),
+      0 8px 32px rgba(0,0,0,0.5),
+      0 0 0 1px rgba(255,255,255,0.13);
+  }
+
+  .item:hover::after { opacity: 1; }
+  .item:active { transform: scale(0.985); }
+
+  /* stagger animation */
+  .item:nth-child(1)  { animation-delay: 0.18s; }
+  .item:nth-child(2)  { animation-delay: 0.22s; }
+  .item:nth-child(3)  { animation-delay: 0.26s; }
+  .item:nth-child(4)  { animation-delay: 0.30s; }
+  .item:nth-child(5)  { animation-delay: 0.34s; }
+  .item:nth-child(6)  { animation-delay: 0.38s; }
+  .item:nth-child(7)  { animation-delay: 0.42s; }
+  .item:nth-child(8)  { animation-delay: 0.46s; }
+  .item:nth-child(9)  { animation-delay: 0.50s; }
+  .item:nth-child(10) { animation-delay: 0.54s; }
+  .item:nth-child(11) { animation-delay: 0.58s; }
+  .item:nth-child(12) { animation-delay: 0.62s; }
+  .item:nth-child(13) { animation-delay: 0.66s; }
+  .item:nth-child(14) { animation-delay: 0.70s; }
+  .item:nth-child(15) { animation-delay: 0.74s; }
+  .item:nth-child(16) { animation-delay: 0.78s; }
+
+  @keyframes itemIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Avatar ── */
+  .avatar {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+    margin-right: 13px;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04));
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.85);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 2px 8px rgba(0,0,0,0.4);
+    transition: background 0.2s;
+  }
+
+  .item:hover .avatar {
+    background: linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0.07));
+  }
+
+  /* ── Info ── */
+  .info { flex: 1; min-width: 0; }
+
+  .name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 13.5px;
+    letter-spacing: -0.01em;
+    color: rgba(255,255,255,0.92);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .email {
+    font-family: 'DM Mono', monospace;
+    font-size: 10.5px;
+    color: rgba(255,255,255,0.28);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: 0.02em;
+  }
+
+  /* ── Arrow icon ── */
+  .arrow {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: opacity 0.2s, transform 0.2s;
+    color: rgba(255,255,255,0.4);
+    flex-shrink: 0;
+  }
+
+  .item:hover .arrow {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  /* ── Footer count ── */
+  .footer {
+    text-align: center;
+    margin-top: 28px;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.15);
+    text-transform: uppercase;
+    animation: slideDown 0.5s ease 1s both;
+  }
+
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
 </style>
 </head>
 
 <body>
 
+<div class="bg-grid"></div>
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+<div class="bg-orb bg-orb-3"></div>
+
 <div class="container">
 
-  <div class="item"><div class="avatar">G</div><div class="info"><div class="name">Gungadhi</div><div class="email">agungasepkalpot@gmail.com</div></div></div>
+  <header class="header">
+    <p class="header-label">Manajemen Akun</p>
+    <h1 class="header-title">Daftar <span>Akun</span></h1>
+    <div class="header-meta">
+      <span class="badge"><span class="badge-dot"></span>16 akun terdaftar</span>
+    </div>
+  </header>
 
-  <div class="item"><div class="avatar">S</div><div class="info"><div class="name">Skibidi SOP sop</div><div class="email">sopsopskibidi@gmail.com</div></div></div>
+  <div class="search-wrap">
+    <svg class="search-icon" viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="1.5">
+      <circle cx="6.5" cy="6.5" r="4.5"/>
+      <path d="M10 10l3.5 3.5"/>
+    </svg>
+    <input class="search-input" type="text" placeholder="Cari akun..." id="searchInput">
+  </div>
 
-  <div class="item"><div class="avatar">A</div><div class="info"><div class="name">Akun Ugphone 1</div><div class="email">akunugphone433@gmail.com</div></div></div>
+  <p class="section-label">Semua akun</p>
 
-  <div class="item"><div class="avatar">G</div><div class="info"><div class="name">GETOUT!</div><div class="email">bibabubabibubabibube@gmail.com</div></div></div>
+  <div class="list" id="accountList">
 
-  <div class="item"><div class="avatar">F</div><div class="info"><div class="name">ffacc</div><div class="email">gggggggggggg55topo@gmail.com</div></div></div>
+    <div class="item" data-name="Gungadhi" data-email="agungasepkalpot@gmail.com">
+      <div class="avatar">G</div>
+      <div class="info">
+        <div class="name">Gungadhi</div>
+        <div class="email">agungasepkalpot@gmail.com</div>
+      </div>
+      <div class="arrow">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M2 6h8M6 2l4 4-4 4"/>
+        </svg>
+      </div>
+    </div>
 
-  <div class="item"><div class="avatar">A</div><div class="info"><div class="name">Akumff</div><div class="email">chivfdty@gmail.com</div></div></div>
+    <div class="item" data-name="Skibidi SOP sop" data-email="sopsopskibidi@gmail.com">
+      <div class="avatar">S</div>
+      <div class="info">
+        <div class="name">Skibidi SOP sop</div>
+        <div class="email">sopsopskibidi@gmail.com</div>
+      </div>
+      <div class="arrow"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6h8M6 2l4 4-4 4"/></svg></div>
+    </div>
 
-  <div class="item"><div class="avatar">W</div><div class="info"><div class="name">WIWOKDETOK</div><div class="email">wiwokdetok96@gmail.com</div></div></div>
+    <div class="item" data-name="Akun Ugphone 1" data-email="akunugphone433@gmail.com">
+      <div class="avatar">A</div>
+      <div class="info">
+        <div class="name">Akun Ugphone 1</div>
+        <div class="email">akunugphone433@gmail.com</div>
+      </div>
+      <div class="arrow"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6h8M6 2l4 4-4 4"/></svg></div>
+    </div>
 
-  <div class="item"><div class="avatar">K</div><div class="info"><div class="name">KWCOYYY Gg</div><div class="email">okebossssyahaha@gmail.com</div></div></div>
+    <div class="item" data-name="GETOUT!" data-email="bibabubabibubabibube@gmail.com">
+      <div class="avatar">G</div>
+      <div class="info">
+        <div class="name">GETOUT!</div>
+        <div class="email">bibabubabibubabibube@gmail.com</div>
+      </div>
+      <div class="arrow"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6h8M6 2l4 4-4 4"/></svg></div>
+    </div>
 
-  <div class="item"><div class="avatar">T</div><div class="info"><div class="name">Test</div><div class="email">raawrrrrrtt@gmail.com</div></div></div>
+    <div class="item" data-name="ffacc" data-email="gggggggggggg55topo@gmail.com">
+      <div class="avatar">F</div>
+      <div class="info">
+        <div class="name">ffacc</div>
+        <div class="email">gggggggggggg55topo@gmail.com</div>
+      </div>
+      <div class="arrow"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6h8M6 2l4 4-4 4"/></svg></div>
+    </div>
 
-  <div class="item"><div class="avatar">G</div><div class="info"><div class="name">Gaj Eee</div><div class="email">gajeee70@gmail.com</div></div></div>
+    <div class="item" data-name="Akumff" data-email="chivfdty@gmail.com">
+      <div class="avatar">A</div>
+      <div class="info">
+        <div class="name">Akumff</div>
+        <div class="email">chivfdty@gmail.com</div>
+      </div>
+      <div class="arrow"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6h8M6 2l4 4-4 4"/></svg></div>
+    </div>
 
-  <div class="item"><div class="avatar">F</div><div class="info"><div class="name">Full Battle royale</div><div class="email">fullbattleroyale@gmail.com</div></div></div>
+    <div class="item" data-name="WIWOKDETOK" data-email="wiwokdetok96@gmail.com">
+      <div class="avatar">W</div>
+      <div class="info">
+        <div class="name">WIWOKDETOK</div>
+        <div class="email">wiwokdetok96@gmail.com</div>
+      </div>
+      <div class="arrow"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6h8M6 2l4 4-4 4"/></svg></div>
+    </div>
 
-  <div class="item"><div class="avatar">B</div><div class="info"><div class="name">betaggg15</div><div class="email">betaggg15@gmail.com</div></div></div>
+    <div class="item" data-name="KWCOYYY Gg" data-email="okebossssyahaha@gmail.com">
+      <div class="avatar">K</div>
+      <div class="info">
+        <div class="name">KWCOYYY Gg</div>
+        <div class="email">okebossssyahaha@gmail.com</div>
+      </div>
+      <div class="arrow"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6h8M6 2l4 4-4 4"/></svg></div>
+    </div>
 
-  <div class="item"><div class="avatar">B</div><div class="info"><div class="name">bgszznihh</div><div class="email">bgszznihh@gmail.com</div></div></div>
+    <div class="item" data-name="Test" data-email="raawrrrrrtt@gmail.com">
+      <div class="avatar">T</div>
+      <div class="info">
+        <div class="name">Test</div>
+        <div class="email">raawrrrrrtt@gmail.com</div>
+      </div>
+      <div class="arrow"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6h8M6 2l4 4-4 4"/></svg></div>
+    </div>
 
-  <div class="item"><div class="avatar">K</div><div class="info"><div class="name">Komangsky67</div><div class="email">komangsky41@gmail.com</div></div></div>
+    <div class="item" data-name="Gaj Eee" data-email="gajeee70@gmail.com">
+      <div class="avatar">G</div>
+      <div class="info">
+        <div class="name">Gaj Eee</div>
+        <div class="email">gajeee70@gmail.com</div>
+      </div>
+      <div class="arrow"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6h8M6 2l4 4-4 4"/></svg></div>
+    </div>
 
-  <div class="item"><div class="avatar">A</div><div class="info"><div class="name">akun epep</div><div class="email">rudi6767676767rudi@gmail.com</div></div></div>
+    <div class="item" data-name="Full Battle royale" data-email="fullbattleroyale@gmail.com">
+      <div class="avatar">F</div>
+      <div class="info">
+        <div class="name">Full Battle royale</div>
+        <div class="email">fullbattleroyale@gmail.com</div>
+      </div>
+      <div class="arrow"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6h8M6 2l4 4-4 4"/></svg></div>
+    </div>
 
-  <div class="item"><div class="avatar">G</div><div class="info"><div class="name">Gung Asep</div><div class="email">gungasep8@gmail.com</div></div></div>
+    <div class="item" data-name="betaggg15" data-email="betaggg15@gmail.com">
+      <div class="avatar">B</div>
+      <div class="info">
+        <div class="name">betaggg15</div>
+        <div class="email">betaggg15@gmail.com</div>
+      </div>
+      <div class="arrow"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6h8M6 2l4 4-4 4"/></svg></div>
+    </div>
 
+    <div class="item" data-name="bgszznihh" data-email="bgszznihh@gmail.com">
+      <div class="avatar">B</div>
+      <div class="info">
+        <div class="name">bgszznihh</div>
+        <div class="email">bgszznihh@gmail.com</div>
+      </div>
+      <div class="arrow"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6h8M6 2l4 4-4 4"/></svg></div>
+    </div>
+
+    <div class="item" data-name="Komangsky67" data-email="komangsky41@gmail.com">
+      <div class="avatar">K</div>
+      <div class="info">
+        <div class="name">Komangsky67</div>
+        <div class="email">komangsky41@gmail.com</div>
+      </div>
+      <div class="arrow"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6h8M6 2l4 4-4 4"/></svg></div>
+    </div>
+
+    <div class="item" data-name="akun epep" data-email="rudi6767676767rudi@gmail.com">
+      <div class="avatar">A</div>
+      <div class="info">
+        <div class="name">akun epep</div>
+        <div class="email">rudi6767676767rudi@gmail.com</div>
+      </div>
+      <div class="arrow"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6h8M6 2l4 4-4 4"/></svg></div>
+    </div>
+
+    <div class="item" data-name="Gung Asep" data-email="gungasep8@gmail.com">
+      <div class="avatar">G</div>
+      <div class="info">
+        <div class="name">Gung Asep</div>
+        <div class="email">gungasep8@gmail.com</div>
+      </div>
+      <div class="arrow"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6h8M6 2l4 4-4 4"/></svg></div>
+    </div>
+
+  </div>
+
+  <div class="footer" id="footerCount">— 16 akun —</div>
 </div>
+
+<script>
+  // ── Mouse-tracked liquid shimmer ──
+  document.querySelectorAll('.item').forEach(item => {
+    item.addEventListener('mousemove', e => {
+      const r = item.getBoundingClientRect();
+      const x = ((e.clientX - r.left) / r.width * 100).toFixed(1);
+      const y = ((e.clientY - r.top)  / r.height * 100).toFixed(1);
+      item.style.setProperty('--mx', x + '%');
+      item.style.setProperty('--my', y + '%');
+    });
+  });
+
+  // ── Search ──
+  const input   = document.getElementById('searchInput');
+  const items   = document.querySelectorAll('.item');
+  const footer  = document.getElementById('footerCount');
+
+  input.addEventListener('input', () => {
+    const q = input.value.toLowerCase().trim();
+    let visible = 0;
+    items.forEach(item => {
+      const match = item.dataset.name.toLowerCase().includes(q) ||
+                    item.dataset.email.toLowerCase().includes(q);
+      item.style.display = match ? 'flex' : 'none';
+      if (match) visible++;
+    });
+    footer.textContent = q ? `— ${visible} hasil ditemukan —` : `— 16 akun —`;
+  });
+</script>
 
 </body>
 </html>
+
